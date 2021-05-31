@@ -8,7 +8,10 @@ class Hybrid_Car(object):
 
     # Changing the information printed for a given object
     def __str__(self):
-        return "{} {}, {} {}, CAD".format(self.manufacturer, self.make, self.year, self.price)
+        return "{} {}, {} {} mpg, {} CAD".format(self.manufacturer, self.make, self.year, self.efficiency, self.price)
+
+    def __repr__(self):
+        return "{} {}, {} {} mpg, {} CAD".format(self.manufacturer, self.make, self.year, self.efficiency, self.price)
 
     # Overloading the comparison operators depending on the desired metric to compare
     def __lt__(self, other):
