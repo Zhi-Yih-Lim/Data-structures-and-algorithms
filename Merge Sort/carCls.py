@@ -11,6 +11,23 @@ class Hybrid_Car(object):
         return "{} {}, {} {}, CAD".format(self.manufacturer, self.make, self.year, self.price)
 
     # Overloading the comparison operators depending on the desired metric to compare
+    def __lt__(self, other):
+        return self.efficiency < other.efficiency
+
+    def __le__(self, other):
+        return self.efficiency <= other.efficiency
+
+    def __gt__(self, other):
+        return self.efficiency > other.efficiency
+
+    def __ge__(self, other):
+        return self.efficiency >= other.efficiency
+
+    def __ne__(self, other):
+        return self.efficiency != other.efficiency
+
+    def __eq__(self, other):
+        return self.efficiency == other.efficiency
 
 
 

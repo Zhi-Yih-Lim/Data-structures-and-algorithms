@@ -1,5 +1,6 @@
 import numpy as np
 from carCls import Hybrid_Car
+from sort import MergeSort
 
 
 # (Algorithm)
@@ -37,4 +38,20 @@ carLst.append(Hybrid_Car("Accord Hybird", "Honda", 2020, 48, 26400))
 carLst.append(Hybrid_Car("Camry Hybird", "Toyota", 2020, 52, 29205))
 carLst.append(Hybrid_Car("Insight", "Honda", 2020, 52, 23860))
 
-print(carLst[5])
+# Prompt the user to select a parameter to compare
+
+variant = None
+
+while variant == None:
+    variant = input("Parameter to sort : [P] Price or [mpg] Miles Per Gallon :")
+
+    if variant != "P" and variant != "mpg":
+        print("Invalid selection, please enter \"P\" for price or \"mpg\" for miles per gallon")
+        variant = None
+
+# Perform the merge sort based on the criteria selected
+sortedLst = MergeSort(unsortedList=carLst,parameters=variant)
+
+for car in sortedLst:
+    print(car)
+    
