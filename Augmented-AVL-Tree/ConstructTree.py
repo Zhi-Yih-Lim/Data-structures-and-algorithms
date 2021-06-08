@@ -7,9 +7,6 @@ class Tree(object):
    
     def __init__(self,node):
         self.root = node
-        self.height = 1
-        self.leftMost = None
-        self.rightMost = None
 
     def add_node(self,node):
         # Start from the root node
