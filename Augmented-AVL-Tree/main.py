@@ -2,6 +2,7 @@
 import numpy as np
 from node import carNode
 from ConstructTree import Tree
+from Diagram import ShowTree
 # Instantiate a set to store the different hybrid car objects
 #carSet = {}
 
@@ -27,3 +28,4 @@ print(Tree1.root)
 print(Tree1.root.leftC)
 print(Tree1.root.rightC)
 print(Tree1.root.height)
+ShowTree(Tree1)
