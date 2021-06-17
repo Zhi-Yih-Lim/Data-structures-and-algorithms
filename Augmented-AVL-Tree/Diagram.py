@@ -14,7 +14,7 @@ def ShowTree(treeObj):
         # bottom layer
         ttlSpaces = ttlLeaves - 1
         # Calculate the total columns expected
-        ttlColumns = treeLeaves + treeSpaces
+        ttlColumns = ttlLeaves + ttlSpaces
         # Instantiate an array that will store the locations of the 
         # nodes within the tree
         displayArr = np.zeros((treeHeight,ttlColumns))
@@ -22,7 +22,7 @@ def ShowTree(treeObj):
         # number of nodes that can be fitted wihtin each layer. Cycle through 
         # each layer and calculate the total number of nodes that can fit 
         # within that layer
-        for row in treeHeight:
+        for row in range(treeHeight):
             # Calculate the inverted row position
             invertedRow = (treeHeight-1)-row
             # Calculate the total number of nodes within the current 
@@ -47,7 +47,7 @@ def ShowTree(treeObj):
                 while currentNode != None:
                     if baseLst[travCount] == 0:
                         currentNode = currentNode.leftC
-                    elif baseLst[tracCount] == 1:
+                    elif baseLst[travCount] == 1:
                         currentNode = currentNode.rightC
                     travCount += 1
                 # Upon exiting the loop, check "travCount". If "travCount"
@@ -74,9 +74,9 @@ def ShowTree(treeObj):
                     invertBit = len(baseLst)-1-bitNum
                     # If the subsequent bit is larger than one
                     # carry over the value to the current position
-                    if baseLst[inverBit] == 2:
+                    if baseLst[invertBit] == 2:
                         baseLst[invertBit-1] += 1
-                        bastLst[inverBit] = 0
+                        baseLst[invertBit] = 0
              
             # With 'pathLst' now populated for each of the nodes 
             # in the current row, access the corresponding node position
@@ -90,25 +90,45 @@ def ShowTree(treeObj):
                     # Calculate the x-coordinate of the current Node
                     globXCoord = (nodeNum*2) 
                     if len(path) == 0:
-                        displayArr[invertedRow,globXCoord]=0
-                    else:
+                        # 1 indicates that there should be a node
+                        # present but is absent for the current tree
                         displayArr[invertedRow,globXCoord]=1
-                        
+                    else:
+                        # 2 indicates that there is a node present in the 
+                        # current spot
+                        displayArr[invertedRow,globXCoord]=2
+            else:
+                # For the remaining rows, access the subsequent row to identify 
+                # the node location for the current row
+                for nodeNum,path in enumerate(pathLst):
+                    # Instantiate a rising and falling edge detector 
+                    risingEdge = False
+                    fallingEdge = False
+                    # Instantiate a variable to keep track of the previous
+                    # X-coordinate
+                    prevXCoord = 0
+                    for col in range(ttlColumns):
+                        if (displayArr[invertedRow+1,col] == 1 or displayArr[invertedRow+1,col] == 2) and risingEdge == False:
+                               risingEdge = True
+                               prevXCoord = col
+                        elif (displayArr[invertedRow+1,col] == 1 or displayArr[invertedRow+1,col]) == 2 and risingEdge == True:
+                                 fallingEdge = True
+                        # If both the rising and falling edges have been detected
+                        # calculate the midpoint between the rising and falling
+                        # edges
+                        if risingEdge and fallingEdge:
+                            midpoint = prevXCoord + ((col - prevXCoord)//2)
+                            # Plot the current node location in displayArr
+                            if len(path) == 0:
+                                displayArr[invertedRow,midpoint] = 1
+                            else:
+                                displayArr[invertedRow,midpoint] = 2
+                            # Reset the rising and falling edge variables
+                            risingEdge = False
+                            fallingEdge = False
 
 
-            # Identify the location of the current node in the instantiated
-            # array
-            if ttlNodes == ttlColumns - (ttlNodes-1):
-                # This condition indicates that the current row is 
-                # the final row of the tree. Generate a list of directions,
-                # specificed using a series of "r" or "l" characeters to 
-                # indicate the direction of travel from the root node to 
-                # arrive tat the node of interest
-                pathLst = []
-                for position in ttlColumns:
-                    # If the current position is an odd number
-                    # there shoud be a node wihtin in
-                    if (position+1)%2 != 0:
+
                         
 
         # Using the array as reference, constuct stings to plot the tree
@@ -131,12 +151,12 @@ def ShowTree(treeObj):
                     if columns == 0:
                         if displayArr[rows-ttlarrowRow,columns] == 0:
                             treeString = " "
-                        else:
+                        elif displayArr[rows-ttlarrowRow,columns] == 2:
                             treeString = "O"
                     else:
                         if displayArr[rows-ttlarrowRow,columns] == 0:
                             treeString += " "
-                        else:
+                        elif displayArr[rows-ttlarrowRow,columns] == 2:
                             treeString += "O"
                 arrowRow = not(arrowRow)
                 print(treeString)
@@ -151,12 +171,12 @@ def ShowTree(treeObj):
                 # Instantiate a list to store the coordinates for the first row
                 firstRowCoord = []
                 for colums in range(ttlColumns):
-                    if displayArr[nonArrowRowNum,colums]==1:
+                    if displayArr[nonArrowRowNum,colums]==2:
                         firstRowCoord.append([nonArrowRowNum,colums])
                 # Instantiate a list to store the coordinates for the subsequent row
                 secondRowCoord = []
                 for colums in range(ttlColumns):
-                    if displayArr[nxtNonArrowRowNum,colums]==1:
+                    if displayArr[nonArrowRowNum,colums]==2:
                         secondRowCoord.append([nxtNonArrowRowNum,colums])
                 arrowRow = not(arrowRow)
                 
