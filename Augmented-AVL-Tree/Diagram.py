@@ -1,4 +1,5 @@
 import numpy as np
+from BinAriInvar import binArithCheck
 # A module that generates the graphical representation of the AVL Tree.
 def ShowTree(treeObj):
     # Only plot the tree if it is not empyt
@@ -6,127 +7,88 @@ def ShowTree(treeObj):
         print("There are no nodes to plot")
     else:
         # Identify the height of the tree
-        treeHeight = int(treeObj.root.height) + 1
-        # Calculate the maximum number of leaves expected at the bottom most
-        # layer of the tree
+        treeHeight = int(treeObj.root.height)+1
+        # We would like to create a square array to plot the tree. First, will have to identify the maximum number of 
+        # leaves present at the bottom most layer of the tree to determine the size of the display array.
         ttlLeaves = int(np.power(2,treeHeight-1))
-        # The total number of spaces between the subsequent nodes at the 
-        # bottom layer
+        # We want a space between each leaves in the bottom layer. This means that the total number of spaces to be 
+        # added to the bottom layer will be one less than the total number of leaves available at the bottom layer
         ttlSpaces = ttlLeaves - 1
-        # Calculate the total columns expected
+        # Calculate the total number of columns from the total leaves and the total spaces required
         ttlColumns = ttlLeaves + ttlSpaces
-        # Instantiate an array that will store the locations of the 
-        # nodes within the tree
+        # Instantiate the display array
         displayArr = np.zeros((treeHeight,ttlColumns))
-        # Based on the inherent structure of the AVL tree, there are limited
-        # number of nodes that can be fitted wihtin each layer. Cycle through 
-        # each layer and calculate the total number of nodes that can fit 
-        # within that layer
-        for row in range(treeHeight):
-            # Calculate the inverted row position
-            invertedRow = (treeHeight-1)-row
-            # Calculate the total number of nodes within the current 
-            # layer
-            ttlNodes = int(np.power(2,invertedRow))
-            # Instantiate a list that will store the path to the current node 
-            # of interest, from the root of the tree
-            pathLst = []
-            # Use binary addition to generate the path to access each node
+        # Starting from the bottom row of the tree, I want to individually access the leaves of the 
+        # Original tree to see if there are any leaves present
+        for row in list(reversed(range(treeHeight))):
+            # Calculate the total number of leaves expected in the current row
+            leaves = int(np.power(2,row))
+            print("A total of {} leaves in this layer".format(leaves))
+            # Instantiate a list that will store lists containing directions (in char) that will 
+            # sequentially point to each of the individual nodes of the current layer, from the root
+            # of the tree
+            pat2EachNodeLst = []
+            # To access each of the nodes in the current layer of "treeObj" sequentailly, binary arithmetic 
+            # can be used
+            # There should the exactly the same number of digits as there are number of nodes in the current 
+            # layer of interest. Say that there are four nodes in the current layer, the instantiated list should be 
+            # [0 0 0 0] initially.
             baseLst = []
-            for node in range (ttlNodes):
+            for count in range(row):
                 baseLst.append(0)
-            # Using the values in 'baseLst' as reference, traverse down 
-            # the AVL tree
-            for node in range(ttlNodes):
-                # Variable that points to the root node, intitally
-                currentNode = treeObj.root
-                # Instantiate a traversal counter
-                travCount = 0
-                # We want to traverse all the way down to the leaves 
-                # while keeping count of the total steps taken
-                while currentNode != None:
-                    if baseLst[travCount] == 0:
-                        currentNode = currentNode.leftC
-                    elif baseLst[travCount] == 1:
-                        currentNode = currentNode.rightC
-                    travCount += 1
-                # Upon exiting the loop, check "travCount". If "travCount"
-                # is less than the total number of layers, than measn the the 
-                # path from the tree root to the current leaf of interest is 
-                # incomplete and the current leaf of interest does not exist
-                if travCount < int(treeHeight-1):
-                    pathLst.append([])
-                else:
-                    # Instantiate a direction list
-                    dirLst = []
-                    for bit in baseLst:
-                        if bit == 0:
-                            dirLst.append('L')
-                        elif bit == 1:
-                            dirLst.append('R')
-                    # Append the direction list to 'pathLst'
-                    pathLst.append(dirLst)    
-                # With each passing node, increase binary base value by one
-                baseLst[-1] += 1
-                # Check to see if there are any bits that are larger than one
-                # if so, carry over
-                for bitNum, bit in enumerate(baseLst):
-                    invertBit = len(baseLst)-1-bitNum
-                    # If the subsequent bit is larger than one
-                    # carry over the value to the current position
-                    if baseLst[invertBit] == 2:
-                        baseLst[invertBit-1] += 1
-                        baseLst[invertBit] = 0
-             
-            # With 'pathLst' now populated for each of the nodes 
-            # in the current row, access the corresponding node position
-            # within 'displayArr' and assign the values to be either
-            # '0' or '1' to indicate if the node in that position is 
-            # present or not
-            if ttlColumns - ttlNodes == (ttlNodes-1):
-                # This means that we are in the bottom row of the tree
-                # Here, nodes are separated by one space in between
-                for nodeNum,path in enumerate(pathLst):
-                    # Calculate the x-coordinate of the current Node
-                    globXCoord = (nodeNum*2) 
-                    if len(path) == 0:
-                        # 1 indicates that there should be a node
-                        # present but is absent for the current tree
-                        displayArr[invertedRow,globXCoord]=1
-                    else:
-                        # 2 indicates that there is a node present in the 
-                        # current spot
-                        displayArr[invertedRow,globXCoord]=2
-            else:
-                # For the remaining rows, access the subsequent row to identify 
-                # the node location for the current row
-                for nodeNum,path in enumerate(pathLst):
-                    # Instantiate a rising and falling edge detector 
-                    risingEdge = False
-                    fallingEdge = False
-                    # Instantiate a variable to keep track of the previous
-                    # X-coordinate
-                    prevXCoord = 0
-                    for col in range(ttlColumns):
-                        if (displayArr[invertedRow+1,col] == 1 or displayArr[invertedRow+1,col] == 2) and risingEdge == False:
-                               risingEdge = True
-                               prevXCoord = col
-                        elif (displayArr[invertedRow+1,col] == 1 or displayArr[invertedRow+1,col]) == 2 and risingEdge == True:
-                                 fallingEdge = True
-                        # If both the rising and falling edges have been detected
-                        # calculate the midpoint between the rising and falling
-                        # edges
-                        if risingEdge and fallingEdge:
-                            midpoint = prevXCoord + ((col - prevXCoord)//2)
-                            # Plot the current node location in displayArr
-                            if len(path) == 0:
-                                displayArr[invertedRow,midpoint] = 1
-                            else:
-                                displayArr[invertedRow,midpoint] = 2
-                            # Reset the rising and falling edge variables
-                            risingEdge = False
-                            fallingEdge = False
+            # Access each of the nodes in "treeObj" for the current layer
+            for nodes in range(leaves):
+                # If there is only one node in the current layer, traversal of the tree is not required
+                if len(baseLst) > 0:
+                    # Start from the root of the tree
+                    currentNode = treeObj.root
+                    # Instantaite variable to see if the next node exists
+                    nextNode = None
+                    # Traverse downs the tree, starting from the root, using the directions defined by the digits
+                    # of "baseLst", to the node of interest
+                    # Instantiate a traversal counter that keeps track of the currently referenced bit in "baseLst"
+                    traverseCount = -1 
+                    for digitNum, digit in enumerate(baseLst):
+                        if digit == 0:
+                            nextNode = currentNode.leftC
+                        elif digit == 1:
+                            nextNode = currentNode.rightC
+                        # Check if the next node exists
+                        if nextNode != None:
+                            if digit == 0:
+                                currentNode = currentNode.leftC
+                            elif digit == 1:
+                                currentNode = currentNode.rightC
+                            traverseCount += 1
+                            
+                    # By the end of the loop check if "traverseCount" is of similar value to "digitNum". If they are the same
+                    # that means that the search has followed the direction specified by each digit in "baseLst" and all the
+                    # parent and grandparent nodes of the current node of interest exists. The current node of interest can be 
+                    # plotted in the diagram.
+                    if traverseCount == digitNum:
+                        # Construct a direction list of characters "L" or "R" to describe where the search should diverge to 
+                        #, starting from the root of the tree
+                        dirList = []
+                        for digit in baseLst:
+                            if digit == 0:
+                                dirList.append("L")
+                            elif digit == 1:
+                                dirList.append("R")
+                        # Append "dirList" to "pat2EachNodeLst"
+                        pat2EachNodeLst.append(dirList)
+                    elif traverseCount < digitNum:
+                        # Append and empty list to "pat2EachNodeLst" to indicate that the current node of interest does 
+                        # not exist in the "treeObj"
+                        pat2EachNodeLst.append([])
+                    # With each passing node, increase binary base value by one
+                    baseLst[-1] += 1
+                    # Check to see if "baseLst" follows the invariant for binary addition
+                    binArithCheck(baseLst)
+                
 
+             
+            print(pat2EachNodeLst)
+        
 
 
                         
